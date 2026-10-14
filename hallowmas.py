@@ -12,8 +12,11 @@ class my_array(numpy.ndarray):
     def __eq__(self, other):
         return not (self-other).any()
 
+    def dominates(self,other):
+        return (self>=other).all()
+
 def array(in_list):
-    return my_array((4,), buffer=numpy.array(in_list),offset=0,dtype=numpy.int_)
+    return my_array((len(in_list),), buffer=numpy.array(in_list),offset=0,dtype=numpy.int_)
 
 def unique_list(in_list):
     if isinstance(in_list[0],typing.Hashable):
@@ -150,11 +153,8 @@ def infant(items,sa=True,mask=True):
     avgLength += 1*endings[0]
     return [round(float(28/(avgLength+3)),3), round(float(avgLength+2),3)]
 
-def pavilion(items,absinthe=True):
-    if absinthe:
-        actionPDF = pdf([(5,Fraction('0.33')),(1,Fraction('0.33')),(7,Fraction('0.34'))]).menaceBonus(items)
-    else:
-        actionPDF = pdf([(5,Fraction('0.33')),(1,Fraction(67*10,100*13)),(7,Fraction(67*3,100*13))]).menaceBonus(items)
+def pavilion(items):
+    actionPDF = pdf([(5,Fraction('0.33')),(1,Fraction('0.33')),(7,Fraction('0.34'))]).menaceBonus(items)
     masqueradeSpace = [actionPDF]
     while masqueradeSpace[-1].atMost(27) > Fraction(1,1000000000):
         masqueradeSpace.append(masqueradeSpace[-1]+actionPDF)
@@ -164,6 +164,29 @@ def pavilion(items,absinthe=True):
         avgLength += (i+1)*(endings[i]-endings[i-1])
     avgLength += 1*endings[0]
     return [round(float(28/(avgLength+3)),3), round(float(avgLength+2),3)]
+
+def pavilionBreakEven(items):
+    #start=time.time()
+    actions = 0
+    absinthe = 0
+    length=100000000
+    for i in range(0,length):
+        nightmares = 0
+        actions+=3
+        while nightmares<28:
+            airs = random.randint(1,100)
+            if airs<=33:
+                nightmares+=menaceBonus(5,items)
+            elif airs<=66 or absinthe<0:
+                nightmares+=menaceBonus(1,items)
+                absinthe+=random.randint(1,2)
+            else:
+                nightmares+=menaceBonus(7,items)
+                absinthe-=5
+            actions+=1
+    #end=time.time()
+    #print(end-start)
+    return [28*length/actions, (actions/length)-1]
 
 def carousel(items,gainper,chancegain,travel):
     actionPDF = pdf([(gainper,chancegain),(0,1-chancegain)]).menaceBonus(items)
@@ -204,7 +227,7 @@ def carouselmix(itemsa,gainpera,chancegaina,itemsb,gainperb,chancegainb,travel):
     #print(end-start)
     return spirit/actions
 
-'''
+''' #needs work! very inefficient
 def carouselmix2(itemsa,gainpera,chancegaina,itemsb,gainperb,chancegainb,travel):
     actionPDF = pdf([(array([gainpera,gainperb,0,0]),chancegaina*chancegainb),(array([gainpera,0,0,0]),chancegaina*(1-chancegainb)),(array([0,gainperb,0,0]),chancegainb*(1-chancegaina)),(array([0,0,0,0]),(1-chancegaina)*(1-chancegainb))])#.menaceBonusMix(itemsa,itemsb)
     actionPDF = actionPDF.menaceBonusMix(itemsa,itemsb)
@@ -321,7 +344,7 @@ possibilitesWoesel = list(set(possibilitiesWoesel))
 
 possibilitiesMask = [tuple([sum(i) for i in zip(*j)]) for j in itertools.product(burdens,clothing,adornment,weapon,boots,luggage,companion,affiliation,homeComfort,crew)]
 possibilitiesMask = list(set(possibilitiesMask))
-
+'''
 print('Elmo')
 for k in [True, False]:
     for j in [True, False]:
@@ -375,9 +398,10 @@ for i in range(3,max([i[3] for i in possibilitiesWoesel])+1):
     print(str(i)+' '+str(pQuick)+' '+str(avg))
 
 print('\r\nPavilion')
-for j in [True, False]:
-    for i in sorted(list(set([i[2] for i in possibilitiesMask]))):
-        print('items '+str(i)+' absinthe '+str(j)+' '+str(pavilion(i,absinthe=j)))
+for i in sorted(list(set([i[2] for i in possibilitiesMask]))):
+    print('items '+str(i)+' absinthe True '+str(pavilion(i)))
+for i in sorted(list(set([i[2] for i in possibilitiesMask]))):
+    print('items '+str(i)+' absinthe False '+str(pavilionBreakEven(i)))
 
 print('\r\nConsole')
 for i in sorted(list(set([i[2] for i in possibilitiesWoesel]))):
@@ -409,7 +433,7 @@ for i in sorted(list(set([(i[2],i[1]) for i in possibilities]))):
     print('nightmares '+str(i[0])+' suspicion '+str(i[1])+' '+str(carouselmix(i[0],5,1,i[1],3,1,2)))
 
 
-
+'''
 #(scandal, nightmares, wounds, name)
 #burdens: [(0,1,0,'no_wings no_diminished '),(1,2,1,'wings no_diminished '),(0,1,1,'no_wings diminished '),(1,2,2,'wings diminished ')]
 #hats: [(1,0,0,'modish '),(0,1,0,'sporing ')]
@@ -422,65 +446,117 @@ for i in sorted(list(set([(i[2],i[1]) for i in possibilities]))):
 #homeComfort: [(1,0,0,'newt '),(0,1,0,'midnight/elephant '),(0,0,1,'relic ')]
 #luggage: [(0,1,0,'chess_set ')]
 
+#1 Vake Claw
+#2 Mark of Disdain/Liturgy of Metes and Bounds
+#3 At the Shore of Midnight, 5th Edition/An Elephant that is Yet to be Refuted
+#4 Diamond Newt
+#5 Sound of Wings
+#6 Law-Glass
+#7 Relic of the Revolution
+#8 Red-and-Gold Reptile
+#9 Guiltgift Pendant
+#10 High-Rolling Rantipoles
+#11 Portable Mutable Unlosable Chess-Set
+#12 I WILL NOT BE DIMINISHED
+
+
 def sum2(iterable):
     if isinstance(iterable[0], str): return iterable
     else: return sum(iterable)
-
+'''
 #just nightmares+wounds
-possibilitiesHunger = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings no_diminished '),(1,2,1,'wings no_diminished '),(0,1,1,'no_wings diminished '),(1,2,2,'wings diminished ')],
-                                                                                    [(0,1,0,'sporing ')],
-                                                                                    [(0,0,0,'N/A ')],
-                                                                                    [(0,0,0,'nothing '),(0,1,0,'reptile '), (0,0,1,'guiltgift ')],
-                                                                                    [(0,0,0,'nothing '),(0,2,0,'law-glass '),(0,1,0,'vakeclaw '),(0,0,1,'mark/liturgy ')],
-                                                                                    [(0,0,0,'N/A ')],
-                                                                                    [(0,1,0,'albatross '),(0,0,2,'woesel ')],
-                                                                                    [(0,0,0,'nothing '),(1,0,0,'rantipoles ')],
-                                                                                    [(0,0,0,'nothing '),(0,1,0,'midnight/elephant '),(0,0,1,'relic ')],
-                                                                                    [(0,0,0,'nothing '),(0,1,0,'chess_set ')])]
+possibilitiesHunger = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings no_diminished ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,2,1,'wings no_diminished ', array([0,0,0,0,1,0,0,0,0,0,0,0])),(0,1,1,'no_wings diminished ', array([0,0,0,0,0,0,0,0,0,0,0,1])),(1,2,2,'wings diminished ', array([0,0,0,0,1,0,0,0,0,0,0,1]))],
+                                                                                    [(0,1,0,'sporing ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                    [(0,0,0,'N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                    [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'reptile ', array([0,0,0,0,0,0,0,1,0,0,0,0])), (0,0,1,'guiltgift ', array([0,0,0,0,0,0,0,0,1,0,0,0]))],
+                                                                                    [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,2,0,'law-glass ', array([0,0,0,0,0,1,0,0,0,0,0,0])),(0,1,0,'vakeclaw ', array([1,0,0,0,0,0,0,0,0,0,0,0])),(0,0,1,'mark/liturgy ', array([0,1,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                    [(0,0,0,'N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                    [(0,1,0,'albatross ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,0,2,'woesel ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                    [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,0,0,'rantipoles ', array([0,0,0,0,0,0,0,0,0,1,0,0]))],
+                                                                                    [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'midnight/elephant ', array([0,0,1,0,0,0,0,0,0,0,0,0])),(0,0,1,'relic ', array([0,0,0,0,0,0,1,0,0,0,0,0]))],
+                                                                                    [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'chess_set ', array([0,0,0,0,0,0,0,0,0,0,1,0]))])]
 #just nightmares+scandal
-possibilitiesHungerDuchess = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings N/A '),(1,2,1,'wings N/A ')],
-                                                                                           [(1,0,0,'modish '),(0,1,0,'sporing ')],
-                                                                                           [(1,0,0,'barrel ')],
-                                                                                           [(1,0,0,'necktie '), (0,1,0,'reptile ')],
-                                                                                           [(1,0,0,'census '),(0,2,0,'law-glass '),(0,1,0,'vakeclaw ')],
-                                                                                           [(1,0,0,'stockings ')],
-                                                                                           [(0,0,2,'woesel ')],
-                                                                                           [(0,0,0,'nothing '),(1,0,0,'rantipoles ')],
-                                                                                           [(0,0,0,'nothing '),(1,0,0,'newt '),(0,1,0,'midnight/elephant ')],
-                                                                                           [(0,0,0,'nothing '),(0,1,0,'chess_set ')])]
+possibilitiesHungerDuchess = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,2,1,'wings N/A ', array([0,0,0,0,1,0,0,0,0,0,0,0]))],
+                                                                                           [(1,0,0,'modish ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'sporing ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                           [(1,0,0,'barrel ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                           [(1,0,0,'necktie ', array([0,0,0,0,0,0,0,0,0,0,0,0])), (0,1,0,'reptile ', array([0,0,0,0,0,0,0,1,0,0,0,0]))],
+                                                                                           [(1,0,0,'census ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,2,0,'law-glass ', array([0,0,0,0,0,1,0,0,0,0,0,0])),(0,1,0,'vakeclaw ', array([1,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                           [(1,0,0,'stockings ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                           [(0,0,2,'woesel ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                           [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,0,0,'rantipoles ', array([0,0,0,0,0,0,0,0,0,1,0,0]))],
+                                                                                           [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,0,0,'newt ', array([0,0,0,1,0,0,0,0,0,0,0,0])),(0,1,0,'midnight/elephant ', array([0,0,1,0,0,0,0,0,0,0,0,0]))],
+                                                                                           [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'chess_set ', array([0,0,0,0,0,0,0,0,0,0,1,0]))])]
 #just nightmares
-possibilitiesHungerUnderclay = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings N/A '),(1,2,1,'wings N/A ')],
-                                                                                             [(0,1,0,'sporing ')],
-                                                                                             [(0,0,0,'N/A ')],
-                                                                                             [(0,0,0,'N/A ')],
-                                                                                             [(0,0,0,'nothing '),(0,2,0,'law-glass '),(0,1,0,'vakeclaw ')],
-                                                                                             [(0,0,0,'N/A ')],
-                                                                                             [(0,0,2,'woesel ')],
-                                                                                             [(0,0,0,'N/A ')],
-                                                                                             [(0,0,0,'nothing '),(0,1,0,'midnight/elephant ')],
-                                                                                             [(0,0,0,'nothing '),(0,1,0,'chess_set ')])]
+possibilitiesHungerUnderclay = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,2,1,'wings N/A ', array([0,0,0,0,1,0,0,0,0,0,0,0]))],
+                                                                                             [(0,1,0,'sporing ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,2,0,'law-glass ', array([0,0,0,0,0,1,0,0,0,0,0,0])),(0,1,0,'vakeclaw ', array([1,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,2,'woesel ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'midnight/elephant ', array([0,0,1,0,0,0,0,0,0,0,0,0]))],
+                                                                                             [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'chess_set ', array([0,0,0,0,0,0,0,0,0,0,1,0]))])]
 
-print('\r\nSo hungry - Duchess')
-for iVals, iGroup in itertools.groupby(sorted([(i[1],i[2],i[3]) for i in possibilitiesHunger]), lambda x: (x[0],x[1])):
-    for jVals, jGroup in itertools.groupby(sorted([(i[1],i[0],i[3]) for i in possibilitiesHungerDuchess]), lambda x: (x[0],x[1])):
-        SoHPerAction=hungry(iVals[0],iVals[1],jVals[0],jVals[1],method='Duchess')[0]
+
+SoHungryDuchessCombos = []
+
+print('\r\nPreparing So Hungry - Duchess')
+for iVals, iGroup in itertools.groupby(sorted([(i[1],i[2],i[3],i[4]) for i in possibilitiesHunger]), lambda x: (x[0],x[1])):
+    for jVals, jGroup in itertools.groupby(sorted([(i[1],i[0],i[3],i[4]) for i in possibilitiesHungerDuchess]), lambda x: (x[0],x[1])):
         iGroup=list(iGroup)
         jGroup=list(jGroup)
-        for iFit in iGroup:
-            for jFit in jGroup:
-                if iFit[2][0]==jFit[2][0]: print(''.join(iFit[2])+''.join(jFit[2])+' nightmares '+str(iVals[0])+' wounds '+str(iVals[1])+' fill nightmares '+str(jVals[0])+' fill scandal '+str(jVals[1])+' Duchess '+str(SoHPerAction))
+        if not set([iFit[2][0][0] for iFit in iGroup]).isdisjoint([jFit[2][0][0] for jFit in jGroup]):#ugly, but works: check both outfits have compatible Burdens i.e. both wings or both no_wings
+            SoHPerAction=hungry(iVals[0],iVals[1],jVals[0],jVals[1],method='Duchess')[0]
+            for iFit in iGroup:
+                for jFit in jGroup:
+                    if iFit[2][0][0]==jFit[2][0][0]:
+                        #print(''.join(iFit[2])+''.join(jFit[2])+' nightmares '+str(iVals[0])+' wounds '+str(iVals[1])+' fill nightmares '+str(jVals[0])+' fill scandal '+str(jVals[1])+' Duchess '+str(SoHPerAction))
+                        SoHungryDuchessCombos.append([numpy.logical_or(iFit[3],jFit[3]),iVals[0],iVals[1],jVals[0],jVals[1],'Duchess',SoHPerAction])
 
-print('\r\nSo hungry - Console')
-for iVals, iGroup in itertools.groupby(sorted([(i[1],i[2],i[3]) for i in possibilitiesHunger]), lambda x: (x[0],x[1])):
-    for jVals, jGroup in itertools.groupby(sorted([(i[1],i[0],i[3]) for i in possibilitiesHungerUnderclay]), lambda x: (x[0],x[1])):
-        SoHPerAction=hungry(iVals[0],iVals[1],jVals[0],0,method='Underclay')[0]
+SoHungryConsoleCombos = []
+
+print('Preparing So Hungry - Console')
+for iVals, iGroup in itertools.groupby(sorted([(i[1],i[2],i[3],i[4]) for i in possibilitiesHunger]), lambda x: (x[0],x[1])):
+    for jVals, jGroup in itertools.groupby(sorted([(i[1],i[0],i[3],i[4]) for i in possibilitiesHungerUnderclay]), lambda x: (x[0],x[1])):
         iGroup=list(iGroup)
         jGroup=list(jGroup)
-        for iFit in iGroup:
-            for jFit in jGroup:
-                if iFit[2][0]==jFit[2][0]: print(''.join(iFit[2])+''.join(jFit[2])+' nightmares '+str(iVals[0])+' wounds '+str(iVals[1])+' fill nightmares '+str(jVals[0])+' fill scandal '+str(jVals[1])+' Underclay '+str(SoHPerAction))
+        if not set([iFit[2][0][0] for iFit in iGroup]).isdisjoint([jFit[2][0][0] for jFit in jGroup]):
+            SoHPerAction=hungry(iVals[0],iVals[1],jVals[0],0,method='Underclay')[0]
+            iGroup=list(iGroup)
+            jGroup=list(jGroup)
+            for iFit in iGroup:
+                for jFit in jGroup:
+                    if iFit[2][0][0]==jFit[2][0][0]:
+                        #print(''.join(iFit[2])+''.join(jFit[2])+' nightmares '+str(iVals[0])+' wounds '+str(iVals[1])+' fill nightmares '+str(jVals[0])+' fill scandal '+str(jVals[1])+' Underclay '+str(SoHPerAction))
+                        SoHungryConsoleCombos.append([numpy.logical_or(iFit[3],jFit[3]),iVals[0],iVals[1],jVals[0],jVals[1],'Console',SoHPerAction])
 
+optimalFits=[]
+correspondenceDuchess=[]
+correspondenceConsole=[]
 
+for i in itertools.product([0,1],repeat=12):
+    constraint=list(i)
+    bestFit = max([j[1:] for j in SoHungryDuchessCombos if array(constraint).dominates(j[0])],key=lambda x:x[-1])
+    if not bestFit in optimalFits:
+        optimalFits.append(bestFit)
+        correspondenceDuchess.append([''.join([str(j) for j in constraint]),len(optimalFits)-1])
+    else:
+        correspondenceDuchess.append([''.join([str(j) for j in constraint]),optimalFits.index(bestFit)+1])
+    bestFit = max([j[1:] for j in SoHungryConsoleCombos if array(constraint).dominates(j[0])],key=lambda x:x[-1])
+    if not bestFit in optimalFits:
+        optimalFits.append(bestFit)
+        correspondenceConsole.append([''.join([str(j) for j in constraint]),len(optimalFits)-1])
+    else:
+        correspondenceConsole.append([''.join([str(j) for j in constraint]),optimalFits.index(bestFit)+1])
+
+print('Correspondences - Duchess')
+print('{'+', '.join(['["'+i[0]+'"]='+str(i[1]) for i in correspondenceDuchess])+'}')
+print('\r\n\r\nCorrespondences - Console')
+print('{'+', '.join(['["'+i[0]+'"]='+str(i[1]) for i in correspondenceConsole])+'}')
+print('\r\n\r\nOutfit details')
+print('{{'+'}, {'.join([','.join([str(round(i[5],2)),str(i[0]),str(i[1]),str(i[2]),str(i[3])]) for i in optimalFits])+'}}')
+'''
 #(suspicion, nightmares, wounds, name)
 #burdens: [(0,1,0,'no_wings no_diminished '),(1,2,1,'wings no_diminished '),(2,1,1,'no_wings diminished '),(3,2,2,'wings diminished ')]
 #hats: [(0,1,0,'sporing '), (1,0,0,'pirate ')]
@@ -490,43 +566,72 @@ for iVals, iGroup in itertools.groupby(sorted([(i[1],i[2],i[3]) for i in possibi
 #companion: [(0,1,0,'albatross '),(0,0,2,'woesel '),(1,0,0,'polymath ')]
 #homeComfort: [(0,0,0,'nothing '),(0,1,0,'midnight/elephant '),(0,0,1,'relic ')]
 
+#1 sound of wings
+#2 law-glass
+#3 vake claw
+#4 mark/liturgy
+#5 six-by-two carryall
+#6 sun-kissed polymath
+#7 at the shore of midnight/elephant
+#8 relic
+#9 diminished
+#10 reptile
+#11 guiltgift
+#12 chess set
+
 #just suspicion
-possibilitiesSend = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings no_diminished '),(1,2,1,'wings no_diminished '),(2,1,1,'no_wings diminished '),(3,2,2,'wings diminished ')],
-                                                                                  [(1,0,0,'pirate ')],
-                                                                                  [(0,0,0,'nothing '),(1,1,0,'vakeclaw ')],
-                                                                                  [(0,0,0,'nothing '),(1,0,0,'six-by-two ')],
-                                                                                  [(0,0,0,'nothing '),(1,0,0,'polymath ')])]
+possibilitiesSend = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings no_diminished ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,2,1,'wings no_diminished ', array([1,0,0,0,0,0,0,0,0,0,0,0])),(2,1,1,'no_wings diminished ', array([0,0,0,0,0,0,0,0,1,0,0,0])),(3,2,2,'wings diminished ', array([1,0,0,0,0,0,0,0,1,0,0,0]))],
+                                                                                  [(1,0,0,'pirate ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,1,0,'vakeclaw ', array([0,0,1,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,0,0,'six-by-two ', array([0,0,0,0,1,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,0,0,'polymath ', array([0,0,0,0,0,1,0,0,0,0,0,0]))])]
 #just wounds+nightmares
-possibilitiesRead = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings no_diminished '),(1,2,1,'wings no_diminished '),(2,1,1,'no_wings diminished '),(3,2,2,'wings diminished ')],
-                                                                                  [(0,1,0,'sporing ')],
-                                                                                  [(0,0,0,'nothing '),(0,1,0,'reptile '),(0,0,1,'guiltgift ')]
-                                                                                  [(0,0,0,'nothing '),(0,2,0,'law-glass '),(1,1,0,'vakeclaw '),(0,0,1,'mark/liturgy ')],
-                                                                                  [(0,1,0,'albatross '),(0,0,2,'woesel ')],
-                                                                                  [(0,0,0,'nothing '),(0,1,0,'midnight/elephant '),(0,0,1,'relic ')])]
+possibilitiesRead = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings no_diminished ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,2,1,'wings no_diminished ', array([1,0,0,0,0,0,0,0,0,0,0,0])),(2,1,1,'no_wings diminished ', array([0,0,0,0,0,0,0,0,1,0,0,0])),(3,2,2,'wings diminished ', array([1,0,0,0,0,0,0,0,1,0,0,0]))],
+                                                                                  [(0,1,0,'sporing ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'reptile ', array([0,0,0,0,0,0,0,0,0,1,0,0])),(0,0,1,'guiltgift ', array([0,0,0,0,0,0,0,0,0,0,1,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,2,0,'law-glass ', array([0,1,0,0,0,0,0,0,0,0,0,0])),(1,1,0,'vakeclaw ', array([0,0,1,0,0,0,0,0,0,0,0,0])),(0,0,1,'mark/liturgy ', array([0,0,0,1,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,1,0,'albatross ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,0,2,'woesel ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'midnight/elephant ', array([0,0,0,0,0,0,1,0,0,0,0,0])),(0,0,1,'relic ', array([0,0,0,0,0,0,0,1,0,0,0,0]))])]
 #just nightmares
-possibilitiesFill = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings N/A '),(1,2,1,'wings N/A ')],
-                                                                                  [(0,1,0,'sporing ')],
-                                                                                  [(0,0,0,'nothing '),(0,1,0,'reptile ')],
-                                                                                  [(0,0,0,'nothing '),(0,2,0,'law-glass '),(1,1,0,'vakeclaw ')],
-                                                                                  [(0,0,0,'nothing '),(0,1,0,'chess_set ')],
-                                                                                  [(0,0,2,'woesel ')],
-                                                                                  [(0,0,0,'nothing '),(0,1,0,'midnight/elephant ')])]
+possibilitiesFill = [tuple([sum2(i) for i in zip(*j)]) for j in itertools.product([(0,1,0,'no_wings N/A ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(1,2,1,'wings N/A ', array([1,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,1,0,'sporing ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'reptile ', array([0,0,0,0,0,0,0,0,0,1,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,2,0,'law-glass ', array([0,1,0,0,0,0,0,0,0,0,0,0])),(1,1,0,'vakeclaw ', array([0,0,1,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'chess_set ', array([0,0,0,0,0,0,0,0,0,0,0,1]))],
+                                                                                  [(0,0,2,'woesel ', array([0,0,0,0,0,0,0,0,0,0,0,0]))],
+                                                                                  [(0,0,0,'nothing ', array([0,0,0,0,0,0,0,0,0,0,0,0])),(0,1,0,'midnight/elephant ', array([0,0,0,0,0,0,1,0,0,0,0,0]))])]
+
+MissiveCombos = []
 
 print('\r\nDiscordant missive')
-for iVals, iGroup in itertools.groupby(sorted([(i[0],i[3]) for i in possibilitiesSend]), lambda x: x[0]):
-    #print(iVals)
-    for jVals, jGroup in itertools.groupby(sorted([(i[1],i[2],i[3]) for i in possibilitiesRead]), lambda x: (x[0],x[1])):
-        #print(jVals)
-        for kVals, kGroup in itertools.groupby(sorted([(i[1],i[3]) for i in possibilitiesFill]), lambda x: x[0]):
-            #print(kVals)
-            SoHPerAction=missive(jVals[0],iVals,jVals[1],kVals)
+for iVals, iGroup in itertools.groupby(sorted([(i[0],i[3],i[4]) for i in possibilitiesSend]), lambda x: x[0]):
+    for jVals, jGroup in itertools.groupby(sorted([(i[1],i[2],i[3],i[4]) for i in possibilitiesRead]), lambda x: (x[0],x[1])):
+        for kVals, kGroup in itertools.groupby(sorted([(i[1],i[3],i[4]) for i in possibilitiesFill]), lambda x: x[0]):
             iGroup = list(iGroup)
             jGroup = list(jGroup)
             kGroup = list(kGroup)
-            for iFit in iGroup:
-                #print(iFit)
-                for jFit in jGroup:
-                    #print(jFit)
-                    for kFit in kGroup:
-                        #print(kFit)
-                        if iFit[1][0]==jFit[2][0] and jFit[2][0]==kFit[1][0]: print(''.join(iFit[1])+''.join(jFit[2])+'suspicion '+str(iVals)+' nightmares '+str(jVals[0])+' wounds '+str(jVals[1])+' fillnightmares '+str(kVals)+' '+str(SoHPerAction))
+            if set([iFit[1][0][0] for iFit in iGroup]) & set([jFit[2][0][0] for jFit in jGroup]) & set([kFit[1][0][0] for kFit in kGroup]) != set([]):
+                SoHPerAction=missive(jVals[0],iVals,jVals[1],kVals)
+                for iFit in iGroup:
+                    for jFit in jGroup:
+                        for kFit in kGroup:
+                            if iFit[1][0][0]==jFit[2][0][0] and jFit[2][0][0]==kFit[1][0][0]:
+                                #print(''.join(iFit[1])+''.join(jFit[2])+'suspicion '+str(iVals)+' nightmares '+str(jVals[0])+' wounds '+str(jVals[1])+' fillnightmares '+str(kVals)+' '+str(SoHPerAction))
+                                MissiveCombos.append([numpy.logical_or(iFit[2],numpy.logical_or(jFit[3],kFit[2])),iVals,jVals[0],jVals[1],kVals,SoHPerAction])
+
+optimalFitsMissive=[]
+correspondenceMissive=[]
+
+for i in itertools.product([0,1],repeat=12):
+    constraint=list(i)
+    bestFit = max([j[1:] for j in MissiveCombos if array(constraint).dominates(j[0])],key=lambda x:x[-1])
+    if not bestFit in optimalFitsMissive:
+        optimalFitsMissive.append(bestFit)
+        correspondenceMissive.append([''.join([str(j) for j in constraint]),len(optimalFitsMissive)-1])
+    else:
+        correspondenceMissive.append([''.join([str(j) for j in constraint]),optimalFitsMissive.index(bestFit)+1])
+
+print('\r\n\r\nCorrespondences - Missive')
+print('{'+', '.join(['["'+i[0]+'"]='+str(i[1]) for i in correspondenceMissive])+'}')
+print('\r\n\r\nOutfit details')
+print('{{'+'}, {'.join([','.join([str(round(i[4],2)),str(i[0]),str(i[1]),str(i[2]),str(i[3])]) for i in optimalFitsMissive])+'}}')
